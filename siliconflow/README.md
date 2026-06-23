@@ -41,7 +41,7 @@ MiniMax / Context7). No manual config needed:
 claude mcp add siliconflow \
   -e SILICONFLOW_API_KEY="your_api_key_here" \
   -e SILICONFLOW_IMAGE_DIR="/path/to/save" \
-  -- uvx --from "git+https://github.com/rootazero/Aleph-mcp@v0.1.0#subdirectory=siliconflow" aleph-siliconflow-mcp
+  -- uvx aleph-siliconflow-mcp@0.1.0
 ```
 
 ### Option C — Claude Desktop / any MCP client (JSON) / 通用 JSON 配置
@@ -54,11 +54,7 @@ Add this to your client's MCP config
   "mcpServers": {
     "siliconflow": {
       "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/rootazero/Aleph-mcp@v0.1.0#subdirectory=siliconflow",
-        "aleph-siliconflow-mcp"
-      ],
+      "args": ["aleph-siliconflow-mcp@0.1.0"],
       "env": {
         "SILICONFLOW_API_KEY": "your_api_key_here",
         "SILICONFLOW_IMAGE_DIR": "/path/to/save"
@@ -68,10 +64,12 @@ Add this to your client's MCP config
 }
 ```
 
-> **Pinned vs latest / 固定版本与最新版**: the `@v0.1.0` tag pins a reproducible release
-> (recommended). Drop `@v0.1.0` (use `…/Aleph-mcp#subdirectory=siliconflow`) to always track
-> the latest `main`. The first launch clones + builds the package (a few seconds); subsequent
-> launches are cached by `uvx`.
+> **Pinned vs latest / 固定版本与最新版**: `aleph-siliconflow-mcp@0.1.0` pins a reproducible
+> release from [PyPI](https://pypi.org/project/aleph-siliconflow-mcp/) (recommended); use
+> `aleph-siliconflow-mcp` (no `@version`) to always get the latest. Installing straight from the
+> git repo also works:
+> `uvx --from "git+https://github.com/rootazero/Aleph-mcp@v0.1.0#subdirectory=siliconflow" aleph-siliconflow-mcp`.
+> The first launch downloads + caches the package (a few seconds).
 
 ---
 
