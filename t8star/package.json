@@ -1,6 +1,6 @@
 {
   "name": "aleph-t8star-mcp",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Aleph's official T8star media-generation MCP server (image / TTS / models / balance)",
   "repository": {
     "type": "git",

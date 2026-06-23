@@ -6,7 +6,7 @@ import { editImage, generateImage } from "./images.js";
 import { getBalance, listModels } from "./models.js";
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "aleph-t8star-mcp", version: "0.1.0" });
+  const server = new McpServer({ name: "aleph-t8star-mcp", version: "0.2.2" });
 
   server.registerTool(
     "generate_image",
