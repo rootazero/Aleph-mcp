@@ -10,12 +10,11 @@ are already handled by Aleph core, so this server is **media-only**.
 
 ## Prerequisites / 前置要求
 
-1. **[uv](https://docs.astral.sh/uv/)** installed (provides `uvx`):
+1. **[Node.js](https://nodejs.org/) 18 or newer** (provides `npx`):
    ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh   # macOS / Linux
-   # Windows: powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+   node --version   # must be >= 18
    ```
-   `uvx` builds and launches the server on demand — no manual `pip install` needed.
+   `npx` downloads and launches the server on demand — no manual install needed.
 2. A **SiliconFlow API key** — get one at <https://cloud.siliconflow.cn/account/ak>.
 
 ---
@@ -32,8 +31,8 @@ MiniMax / Context7). No manual config needed:
 3. Paste your **API key** (and optionally a save directory for images/audio).
 4. Done — the tools become available to Aleph immediately.
 
-> You can also just **ask Aleph in natural language**, e.g. “装一下硅基流动 MCP / install the
-> SiliconFlow MCP”, and Aleph will run the install for you (it will ask for the API key).
+> You can also just **ask Aleph in natural language**, e.g. "装一下硅基流动 MCP / install the
+> SiliconFlow MCP", and Aleph will run the install for you (it will ask for the API key).
 
 ### Option B — Claude Code / 其他支持 MCP 的客户端（CLI）
 
@@ -41,7 +40,7 @@ MiniMax / Context7). No manual config needed:
 claude mcp add siliconflow \
   -e SILICONFLOW_API_KEY="your_api_key_here" \
   -e SILICONFLOW_IMAGE_DIR="/path/to/save" \
-  -- uvx aleph-siliconflow-mcp@0.1.0
+  -- npx -y aleph-siliconflow-mcp@0.2.0
 ```
 
 ### Option C — Claude Desktop / any MCP client (JSON) / 通用 JSON 配置
@@ -53,8 +52,8 @@ Add this to your client's MCP config
 {
   "mcpServers": {
     "siliconflow": {
-      "command": "uvx",
-      "args": ["aleph-siliconflow-mcp@0.1.0"],
+      "command": "npx",
+      "args": ["-y", "aleph-siliconflow-mcp@0.2.0"],
       "env": {
         "SILICONFLOW_API_KEY": "your_api_key_here",
         "SILICONFLOW_IMAGE_DIR": "/path/to/save"
@@ -64,12 +63,10 @@ Add this to your client's MCP config
 }
 ```
 
-> **Pinned vs latest / 固定版本与最新版**: `aleph-siliconflow-mcp@0.1.0` pins a reproducible
-> release from [PyPI](https://pypi.org/project/aleph-siliconflow-mcp/) (recommended); use
-> `aleph-siliconflow-mcp` (no `@version`) to always get the latest. Installing straight from the
-> git repo also works:
-> `uvx --from "git+https://github.com/rootazero/Aleph-mcp@v0.1.0#subdirectory=siliconflow" aleph-siliconflow-mcp`.
-> The first launch downloads + caches the package (a few seconds).
+> **Pinned vs latest / 固定版本与最新版**: `aleph-siliconflow-mcp@0.2.0` pins a reproducible
+> release from [npm](https://www.npmjs.com/package/aleph-siliconflow-mcp) (recommended); use
+> `aleph-siliconflow-mcp` (no `@version`) to always get the latest. The first launch downloads
+> and caches the package (a few seconds).
 
 ---
 
@@ -107,9 +104,13 @@ Add this to your client's MCP config
 
 ```bash
 cd siliconflow
-uv run --extra dev pytest        # run the test suite
-uvx ruff check .                 # lint
-uv build                         # build sdist + wheel
+npm ci            # install dependencies
+npm test          # run the vitest suite
+npm run typecheck # tsc --noEmit
+npm run build     # compile src/ → dist/
 ```
+
+> **Note:** this package was previously published on PyPI (`uvx aleph-siliconflow-mcp`, v0.1.0).
+> It has been rewritten in TypeScript and now ships on npm; the PyPI release is deprecated.
 
 License: MIT.

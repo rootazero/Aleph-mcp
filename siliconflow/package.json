@@ -1,0 +1,39 @@
+{
+  "name": "aleph-siliconflow-mcp",
+  "version": "0.2.0",
+  "description": "Aleph's official SiliconFlow media-generation MCP server (image / video / TTS)",
+  "type": "module",
+  "bin": {
+    "aleph-siliconflow-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "siliconflow",
+    "image",
+    "video",
+    "tts",
+    "aleph"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

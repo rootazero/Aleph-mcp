@@ -13,10 +13,13 @@ jobs:
         working-directory: siliconflow
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-node@v4
         with:
-          enable-cache: true
-      - name: Lint (ruff)
-        run: uvx ruff check .
-      - name: Test (pytest)
-        run: uv run --extra dev pytest -v
+          node-version: 20
+          cache: npm
+          cache-dependency-path: siliconflow/package-lock.json
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test (vitest)
+        run: npm test
