@@ -100,7 +100,7 @@ export async function editImage(args: {
   form.append("model", model);
   form.append("prompt", args.prompt);
   form.append("n", String(args.n ?? 1));
-  if (args.size) form.append("size", args.size);
+  form.append("size", args.size ?? "auto");
   if (args.mask) {
     const m = await client.loadImageBytes(args.mask);
     form.append("mask", new Blob([new Uint8Array(m.bytes)]), m.filename);
