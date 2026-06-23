@@ -1,12 +1,31 @@
 {
   "name": "aleph-t8star-mcp",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Aleph's official T8star media-generation MCP server (image / TTS / models / balance)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rootazero/Aleph-mcp.git",
+    "directory": "t8star"
+  },
+  "homepage": "https://github.com/rootazero/Aleph-mcp/tree/main/t8star#readme",
+  "bugs": "https://github.com/rootazero/Aleph-mcp/issues",
   "type": "module",
-  "bin": { "aleph-t8star-mcp": "dist/index.js" },
-  "files": ["dist"],
-  "engines": { "node": ">=18" },
-  "keywords": ["mcp", "t8star", "image", "tts", "aleph"],
+  "bin": {
+    "aleph-t8star-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "t8star",
+    "image",
+    "tts",
+    "aleph"
+  ],
   "license": "MIT",
   "scripts": {
     "build": "tsc",
