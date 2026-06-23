@@ -1,0 +1,35 @@
+name: Publish to PyPI
+
+# Publishes aleph-siliconflow-mcp to PyPI when a GitHub Release is published.
+# Uses PyPI Trusted Publishing (OIDC) — no API token stored in the repo.
+#
+# One-time setup before the first Release:
+#   1. Create the project's Trusted Publisher on PyPI
+#      (https://pypi.org/manage/account/publishing/):
+#        - PyPI project name: aleph-siliconflow-mcp
+#        - Owner: rootazero   Repository: Aleph-mcp
+#        - Workflow name: publish.yml
+#        - Environment name: pypi
+#   2. Create a GitHub environment named "pypi" in repo settings.
+#   3. Publish a GitHub Release (e.g. from tag v0.1.0) -> this workflow runs.
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  pypi:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write  # required for PyPI Trusted Publishing (OIDC)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Build sdist + wheel
+        run: uv build
+        working-directory: siliconflow
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: siliconflow/dist/
