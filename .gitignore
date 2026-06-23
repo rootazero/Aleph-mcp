@@ -1,9 +1,5 @@
-__pycache__/
-*.py[cod]
-.venv/
-*.egg-info/
-.pytest_cache/
-.env
+node_modules/
 dist/
 build/
-uv.lock
+*.log
+.env

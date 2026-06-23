@@ -8,9 +8,9 @@ Aleph-mcp fills official gaps. Where a vendor ships no official MCP server, Alep
 
 ## Servers
 
-| Directory | Description |
-|-----------|-------------|
-| `siliconflow/` | SiliconFlow media generation — image / video / TTS |
+| Directory | Description | Runtime |
+|-----------|-------------|---------|
+| `siliconflow/` | SiliconFlow media generation — image / video / TTS | Node.js ≥ 18 (`npx aleph-siliconflow-mcp`) |
 
 ## Credits
 
