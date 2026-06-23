@@ -1,0 +1,26 @@
+{
+  "name": "aleph-t8star-mcp",
+  "version": "0.1.0",
+  "description": "Aleph's official T8star media-generation MCP server (image / TTS / models / balance)",
+  "type": "module",
+  "bin": { "aleph-t8star-mcp": "dist/index.js" },
+  "files": ["dist"],
+  "engines": { "node": ">=18" },
+  "keywords": ["mcp", "t8star", "image", "tts", "aleph"],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
