@@ -1,12 +1,21 @@
 // FastMCP server: registers all T8star media tools.
+import { readFileSync } from "node:fs";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { generateSpeech } from "./audio.js";
 import { editImage, generateImage } from "./images.js";
 import { getBalance, listModels } from "./models.js";
 
+// Single source of truth for the server version: read it from package.json so the
+// MCP handshake can never drift from the published version. dist/server.js and
+// src/server.ts both sit one level under the package root, so "../package.json"
+// resolves identically at runtime and under vitest.
+const version = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+).version as string;
+
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "aleph-t8star-mcp", version: "0.2.2" });
+  const server = new McpServer({ name: "aleph-t8star-mcp", version });
 
   server.registerTool(
     "generate_image",

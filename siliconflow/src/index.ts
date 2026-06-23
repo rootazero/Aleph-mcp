@@ -2,7 +2,7 @@
 /** Entry point: build the MCP server, register all SiliconFlow media tools, serve over stdio. */
 
 import { fileURLToPath } from "node:url";
-import { realpathSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { ToolDef } from "./tool-def.js";
@@ -13,8 +13,16 @@ import { userTools } from "./user.js";
 
 export const allTools: ToolDef[] = [...imageTools, ...videoTools, ...audioTools, ...userTools];
 
+// Single source of truth for the server version: read it from package.json so the
+// MCP handshake can never drift from the published version. dist/index.js and
+// src/index.ts both sit one level under the package root, so "../package.json"
+// resolves identically at runtime and under vitest.
+const version = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+).version as string;
+
 export function buildServer(): McpServer {
-  const server = new McpServer({ name: "aleph-siliconflow-mcp", version: "0.2.2" });
+  const server = new McpServer({ name: "aleph-siliconflow-mcp", version });
   for (const tool of allTools) {
     server.registerTool(
       tool.name,
