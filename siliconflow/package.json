@@ -2,6 +2,13 @@
   "name": "aleph-siliconflow-mcp",
   "version": "0.2.1",
   "description": "Aleph's official SiliconFlow media-generation MCP server (image / video / TTS)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rootazero/Aleph-mcp.git",
+    "directory": "siliconflow"
+  },
+  "homepage": "https://github.com/rootazero/Aleph-mcp/tree/main/siliconflow#readme",
+  "bugs": "https://github.com/rootazero/Aleph-mcp/issues",
   "type": "module",
   "bin": {
     "aleph-siliconflow-mcp": "dist/index.js"
