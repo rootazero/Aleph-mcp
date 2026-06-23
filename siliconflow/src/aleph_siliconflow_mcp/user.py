@@ -35,7 +35,7 @@ async def get_user_info() -> str:
 
 
 async def list_models(type: str | None = None, sub_type: str | None = None) -> str:
-    """List available models. type: text|image|audio|video; sub_type: e.g. text-to-image, text-to-video, text-to-speech."""
+    """List available models. type: text|image|audio|video; sub_type: e.g. text-to-image, image-to-image, text-to-video, speech-to-text."""
     client = get_client()
     params: dict = {}
     if type:
