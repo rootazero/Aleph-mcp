@@ -2,6 +2,7 @@
 /** Entry point: build the MCP server, register all SiliconFlow media tools, serve over stdio. */
 
 import { fileURLToPath } from "node:url";
+import { realpathSync } from "node:fs";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { ToolDef } from "./tool-def.js";
@@ -13,7 +14,7 @@ import { userTools } from "./user.js";
 export const allTools: ToolDef[] = [...imageTools, ...videoTools, ...audioTools, ...userTools];
 
 export function buildServer(): McpServer {
-  const server = new McpServer({ name: "aleph-siliconflow-mcp", version: "0.2.0" });
+  const server = new McpServer({ name: "aleph-siliconflow-mcp", version: "0.2.2" });
   for (const tool of allTools) {
     server.registerTool(
       tool.name,
@@ -30,7 +31,18 @@ export async function main(): Promise<void> {
   await server.connect(transport);
 }
 
-const isEntry = process.argv[1] === fileURLToPath(import.meta.url);
+// Detect direct execution symlink-safe: an npm/npx `bin` shim runs this file
+// through a symlink in node_modules/.bin, so process.argv[1] is that symlink,
+// not the real dist/index.js. Resolve both before comparing — otherwise main()
+// never runs under npx and the server exits silently. Importers (tests) see a
+// mismatch and stay side-effect-free.
+const isEntry = (() => {
+  try {
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+})();
 if (isEntry) {
   main().catch((err) => {
     console.error(err);
