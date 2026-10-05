@@ -11,8 +11,11 @@ Aleph's official MCP server for **T8star** (`ai.t8star.org`) — a large OpenAI/
 | `generate_speech` | Text-to-speech (`tts-1`, `tts-1-hd`, `gpt-4o-mini-tts`, …) |
 | `list_models` | List/filter the 800+ available models |
 | `get_balance` | Account spend / quota (USD) |
+| `generate_video` | Text-to-video (T2V) or image-to-video (I2V). Models: `sora_video2`, `veo3`, `veo3-fast`, `veo3-pro`, `wan-3.0-{i2v,r2v,global}`, `hailuo-h3-*`, `seedance-*`, `kling`, `minimax-h3-ow-*`. Submits `/v1/videos`, polls until done, saves the MP4. |
+| `get_video` | Poll a previously submitted video task by `task_id`. |
+| `generate_music` | Generate music via Suno (`/suno/generate` + `/suno/feed`). Returns up to 2 audio clips saved to `T8STAR_MUSIC_DIR`. |
 
-> Model names are accurate as of 2026-06-23; use `list_models` to discover current models. Video / Midjourney / Suno are planned follow-ups.
+> Model names are accurate as of 2026-10-08; use `list_models` to discover current models. Video / Midjourney / Suno are planned follow-ups. ~~Midjourney / Suno~~ ✅ Suno shipped in 0.3.0; Midjourney still deferred (different API shape — button-based Imagine/Upscale/Variation).
 
 ## Configuration (env)
 
@@ -22,6 +25,10 @@ Aleph's official MCP server for **T8star** (`ai.t8star.org`) — a large OpenAI/
 | `T8STAR_API_BASE` | no | `https://ai.t8star.org/v1` | `.cn` mirror also works |
 | `T8STAR_IMAGE_DIR` | no | — | local dir to save images (URLs expire; some models return base64 which must be saved) |
 | `T8STAR_AUDIO_DIR` | no | falls back to image dir | local dir to save audio |
+| `T8STAR_VIDEO_DIR` | no | — | local dir to save generated MP4s |
+| `T8STAR_MUSIC_DIR` | no | falls back to `T8STAR_AUDIO_DIR` | local dir to save Suno clips |
+| `T8STAR_VIDEO_POLL_INTERVAL_MS` | no | `5000` | how often to poll `/v1/videos/{id}` and `/suno/feed/{ids}` |
+| `T8STAR_VIDEO_POLL_TIMEOUT_MS` | no | `1200000` (20 min) | give up after this; videos can be slow |
 
 ## Install
 
@@ -29,7 +36,7 @@ Aleph's official MCP server for **T8star** (`ai.t8star.org`) — a large OpenAI/
 
 **Claude Code CLI:**
 ```bash
-claude mcp add t8star -e T8STAR_API_KEY="sk-..." -e T8STAR_IMAGE_DIR="/path/to/save" -- npx -y aleph-t8star-mcp@0.1.0
+claude mcp add t8star -e T8STAR_API_KEY="sk-..." -e T8STAR_IMAGE_DIR="/path/to/save" -e T8STAR_VIDEO_DIR="/path/to/videos" -e T8STAR_MUSIC_DIR="/path/to/music" -- npx -y aleph-t8star-mcp@0.3.0
 ```
 
 **Any MCP client (JSON):**
@@ -38,8 +45,13 @@ claude mcp add t8star -e T8STAR_API_KEY="sk-..." -e T8STAR_IMAGE_DIR="/path/to/s
   "mcpServers": {
     "t8star": {
       "command": "npx",
-      "args": ["-y", "aleph-t8star-mcp@0.1.0"],
-      "env": { "T8STAR_API_KEY": "sk-...", "T8STAR_IMAGE_DIR": "/path/to/save" }
+      "args": ["-y", "aleph-t8star-mcp@0.3.0"],
+      "env": {
+        "T8STAR_API_KEY": "sk-...",
+        "T8STAR_IMAGE_DIR": "/path/to/save",
+        "T8STAR_VIDEO_DIR": "/path/to/videos",
+        "T8STAR_MUSIC_DIR": "/path/to/music"
+      }
     }
   }
 }

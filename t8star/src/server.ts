@@ -4,7 +4,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { generateSpeech } from "./audio.js";
 import { editImage, generateImage } from "./images.js";
+import { generateMusic } from "./music.js";
 import { getBalance, listModels } from "./models.js";
+import { generateVideo, getVideoStatus } from "./videos.js";
 
 // Single source of truth for the server version: read it from package.json so the
 // MCP handshake can never drift from the published version. dist/server.js and
@@ -88,6 +90,52 @@ export function createServer(): McpServer {
       inputSchema: {},
     },
     async () => ({ content: [{ type: "text" as const, text: await getBalance() }] }),
+  );
+
+  server.registerTool(
+    "generate_video",
+    {
+      description:
+        "Generate a video from a text prompt (T2V) or reference image (I2V) via t8star (POST /v1/videos, multipart). Models include sora_video2, veo3, veo3-fast, veo3-pro, wan-3.0-*, hailuo-h3-*, seedance*, kling, and minimax-h3-ow-*. Polls /v1/videos/{id} until completion, then saves the MP4 to T8STAR_VIDEO_DIR.",
+      inputSchema: {
+        model: z.string().describe("Video model id, e.g. veo3, veo3-fast, wan-3.0-i2v"),
+        prompt: z.string().describe("Text prompt describing the video"),
+        seconds: z.string().optional().describe("Clip length, e.g. '5' or '10'"),
+        size: z.string().optional().describe("Resolution like '1280x720' or '720x1280'"),
+        private: z.boolean().optional().describe("Mark the video as private (model-dependent)"),
+        seed: z.string().optional().describe("Optional seed for reproducibility"),
+        image: z.string().optional().describe("For I2V models: source image (local path, URL, or data URI)"),
+      },
+    },
+    async (args) => ({ content: [{ type: "text" as const, text: await generateVideo(args) }] }),
+  );
+
+  server.registerTool(
+    "get_video",
+    {
+      description:
+        "Poll the status of a previously submitted t8star video task. Pass the task_id returned by generate_video. Returns current status, and when completed returns the local MP4 path (if T8STAR_VIDEO_DIR is set) or the remote URL.",
+      inputSchema: {
+        task_id: z.string().describe("The video task id returned by generate_video"),
+      },
+    },
+    async (args) => ({ content: [{ type: "text" as const, text: await getVideoStatus(args) }] }),
+  );
+
+  server.registerTool(
+    "generate_music",
+    {
+      description:
+        "Generate music via t8star Suno (POST /suno/generate). Submits the prompt and polls /suno/feed/{clip_ids} until completion. Saves audio clips to T8STAR_MUSIC_DIR (defaults to T8STAR_AUDIO_DIR).",
+      inputSchema: {
+        prompt: z.string().describe("Music generation prompt / lyrics"),
+        tags: z.string().optional().describe("Style tags, comma-separated (e.g. 'pop, upbeat, female vocal')"),
+        mv: z.string().optional().describe("Music version / variant (model-dependent)"),
+        title: z.string().optional().describe("Title for the generated track"),
+        seed: z.string().optional().describe("Optional seed for reproducibility"),
+      },
+    },
+    async (args) => ({ content: [{ type: "text" as const, text: await generateMusic(args) }] }),
   );
 
   return server;
