@@ -295,6 +295,158 @@ export class T8starClient {
       return url;
     }
   }
+
+  async submitFlux(params: {
+    model: "flux-2-max" | "flux-2-pro" | "flux-2-flex";
+    prompt: string;
+    width?: number;
+    height?: number;
+    seed?: number;
+    imagePrompt?: string;
+  }): Promise<{ id: string }> {
+    const payload: Record<string, unknown> = { prompt: params.prompt };
+    if (typeof params.width === "number") payload.width = params.width;
+    if (typeof params.height === "number") payload.height = params.height;
+    if (typeof params.seed === "number" && params.seed >= 0) payload.seed = params.seed;
+    if (params.imagePrompt) {
+      const { bytes } = await this.loadImageBytes(params.imagePrompt);
+      payload.input_image = bytes.toString("base64");
+    }
+    const resp = await this.requestJson("POST", `/bfl/v1/${params.model}`, { json: payload });
+    return { id: String(resp?.id ?? "") };
+  }
+
+  async pollFlux(taskId: string): Promise<{
+    status: string;
+    image_url?: string;
+    seed?: number;
+    error?: string;
+    raw: Record<string, unknown>;
+  }> {
+    const resp = await this.requestJson(
+      "GET",
+      `/bfl/v1/get_result?id=${encodeURIComponent(taskId)}`,
+    );
+    const status = String(resp?.status ?? "unknown");
+    const result = (resp?.result as Record<string, unknown> | undefined) ?? {};
+    return {
+      status,
+      image_url: result?.sample ? String(result.sample) : undefined,
+      seed: typeof result?.seed === "number" ? (result.seed as number) : undefined,
+      error: resp?.details ? String(resp.details) : undefined,
+      raw: resp ?? {},
+    };
+  }
+
+  async submitAsyncEdit(params: {
+    image: string;
+    prompt: string;
+    model?: string;
+    size?: string;
+    n?: number;
+    mask?: string;
+  }): Promise<{ id: string }> {
+    const { bytes, filename } = await this.loadImageBytes(params.image);
+    const form = new FormData();
+    form.append("image", new Blob([new Uint8Array(bytes)]), filename);
+    form.append("model", params.model ?? "gpt-image-2");
+    form.append("prompt", params.prompt);
+    form.append("n", String(params.n ?? 1));
+    form.append("size", params.size ?? "auto");
+    if (params.mask) {
+      const m = await this.loadImageBytes(params.mask);
+      form.append("mask", new Blob([new Uint8Array(m.bytes)]), m.filename);
+    }
+    const resp = await this.requestMultipart("/images/edits?async=true", form);
+    return { id: String(resp?.id ?? resp?.task_id ?? "") };
+  }
+
+  async pollEdit(taskId: string): Promise<{
+    status: string;
+    data: Array<{ url?: string; b64_json?: string }>;
+    fail_reason?: string;
+  }> {
+    const resp = await this.requestJson("GET", `/images/tasks/${encodeURIComponent(taskId)}`);
+    const status = String(resp?.status ?? "unknown").toLowerCase();
+    const data = Array.isArray(resp?.data) ? resp.data : [];
+    return { status, data, fail_reason: resp?.fail_reason ? String(resp.fail_reason) : undefined };
+  }
+
+  async submitLyrics(params: { prompt: string }): Promise<{ id: string }> {
+    const resp = await this.requestJson("POST", "/suno/generate/lyrics/", {
+      json: { prompt: params.prompt },
+    });
+    return { id: String(resp?.id ?? resp?.task_id ?? "") };
+  }
+
+  async pollLyrics(taskId: string): Promise<{
+    status: string;
+    text?: string;
+    error?: string;
+  }> {
+    const resp = await this.requestJson("GET", `/suno/lyrics/${encodeURIComponent(taskId)}`);
+    const status = String(resp?.status ?? "unknown").toLowerCase();
+    return {
+      status,
+      text: typeof resp?.text === "string" ? resp.text : undefined,
+      error: resp?.error ? String(resp.error) : undefined,
+    };
+  }
+
+  async submitMidjourneyImagine(params: {
+    prompt: string;
+    base64_images?: string[];
+    account?: string;
+    action?: string;
+  }): Promise<{ taskId: string; id?: string }> {
+    const body: Record<string, unknown> = { prompt: params.prompt };
+    if (params.account) body.account = params.account;
+    if (params.base64_images?.length) body.base64Array = params.base64_images;
+    const resp = await this.requestJson("POST", "/mj/submit/imagine", { json: body });
+    return { taskId: String(resp?.taskId ?? resp?.task_id ?? resp?.id ?? "") };
+  }
+
+  async submitMidjourneyAction(params: {
+    taskId: string;
+    customId: string;
+    account?: string;
+  }): Promise<{ taskId: string; id?: string }> {
+    const body: Record<string, unknown> = {
+      taskId: params.taskId,
+      customId: params.customId,
+    };
+    if (params.account) body.account = params.account;
+    const resp = await this.requestJson("POST", "/mj/submit/action", { json: body });
+    return { taskId: String(resp?.taskId ?? resp?.task_id ?? resp?.id ?? "") };
+  }
+
+  async pollMidjourney(taskId: string): Promise<{
+    status: string;
+    progress?: string;
+    imageUrl?: string;
+    buttons?: Array<{ customId: string; label: string }>;
+    failReason?: string;
+    raw: Record<string, unknown>;
+  }> {
+    const resp = await this.requestJson("GET", `/mj/task/${encodeURIComponent(taskId)}/fetch`);
+    const status = String(resp?.status ?? "unknown").toLowerCase();
+    const buttons = Array.isArray(resp?.buttons)
+      ? resp.buttons.map((b: Record<string, unknown>) => ({
+          customId: String(b?.customId ?? b?.custom_id ?? ""),
+          label: String(b?.label ?? b?.text ?? ""),
+        }))
+      : [];
+    return {
+      status,
+      progress: resp?.progress ? String(resp.progress) : undefined,
+      imageUrl: resp?.imageUrl ?? resp?.image_url ? String(resp.imageUrl ?? resp?.image_url) : undefined,
+      buttons,
+      failReason: resp?.failReason ?? resp?.fail_reason
+        ? String(resp.failReason ?? resp.fail_reason)
+        : undefined,
+      raw: resp ?? {},
+    };
+  }
 }
 
 let _client: T8starClient | null = null;

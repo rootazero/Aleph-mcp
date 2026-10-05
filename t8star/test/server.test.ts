@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { createServer } from "../src/server.js";
 
 describe("server", () => {
-  it("registers all eight tools", async () => {
+  it("registers all sixteen tools", async () => {
     const server = createServer();
     const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
     const client = new Client({ name: "test", version: "0.0.0" });
@@ -21,6 +21,14 @@ describe("server", () => {
         "generate_video",
         "get_video",
         "generate_music",
+        "generate_flux",
+        "get_flux",
+        "edit_image_async",
+        "get_edit",
+        "generate_lyrics",
+        "imagine_mj",
+        "mj_action",
+        "get_mj",
       ]),
     );
     await client.close();

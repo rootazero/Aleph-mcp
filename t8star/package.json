@@ -1,7 +1,7 @@
 {
   "name": "aleph-t8star-mcp",
-  "version": "0.3.0",
-  "description": "Aleph's official T8star media-generation MCP server (image / TTS / video / music / models / balance)",
+  "version": "0.4.0",
+  "description": "Aleph's official T8star media-generation MCP server (image / TTS / video / music / Flux 2 / Midjourney / models / balance)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rootazero/Aleph-mcp.git",
@@ -25,6 +25,9 @@
     "image",
     "video",
     "music",
+    "lyrics",
+    "flux",
+    "midjourney",
     "tts",
     "aleph"
   ],
